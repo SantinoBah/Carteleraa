@@ -1260,6 +1260,8 @@
     .ai-bubble p { margin-bottom: 0.5rem; }
     .ai-bubble p:last-child { margin-bottom: 0; }
 
+    .ai-typing-status { font-size: 0.76rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .ai-typing-status:empty { display: none; }
     .ai-typing { display: flex; gap: 4px; padding: 0.3rem 0; }
     .ai-typing span {
       width: 6px; height: 6px; border-radius: 50%;
@@ -1811,8 +1813,13 @@
       const div = document.createElement('div');
       div.className = 'ai-msg ai-msg-bot';
       div.id = 'ai-typing-indicator';
-      div.innerHTML = `<div class="ai-avatar">✦</div><div class="ai-bubble"><div class="ai-typing"><span></span><span></span><span></span></div></div>`;
+      div.innerHTML = `<div class="ai-avatar">✦</div><div class="ai-bubble"><div class="ai-typing-status" id="ai-typing-status"></div><div class="ai-typing"><span></span><span></span><span></span></div></div>`;
       cont.appendChild(div);
+      scrollChatAbajo();
+    }
+    function actualizarTypingIA(texto) {
+      const status = document.getElementById('ai-typing-status');
+      if (status) status.textContent = texto;
       scrollChatAbajo();
     }
     function quitarTypingIA() {
@@ -1860,6 +1867,37 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
     }
 
     // ── LLAMADA A GEMINI ─────────────────────────────────
+    // ── REINTENTOS CON BACKOFF (429 rate-limit / 503 sobrecarga) ─
+    function esperar(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function fetchGeminiConReintentos(url, options, maxIntentos = 4) {
+      let intento = 0;
+      let delay = 1200; // ms, crece exponencialmente
+      while (true) {
+        intento++;
+        let res;
+        try {
+          res = await fetch(url, options);
+        } catch (err) {
+          // Falla de red (sin conexión, CORS, etc.)
+          if (intento >= maxIntentos) throw new Error('No se pudo conectar con Gemini. Revisá tu conexión.');
+          actualizarTypingIA(`⏳ Reconectando (${intento}/${maxIntentos - 1})...`);
+          await esperar(delay + Math.random() * 400);
+          delay *= 2;
+          continue;
+        }
+
+        if ((res.status === 429 || res.status === 503) && intento < maxIntentos) {
+          actualizarTypingIA(`⏳ Alta demanda, reintentando (${intento}/${maxIntentos - 1})...`);
+          await esperar(delay + Math.random() * 400);
+          delay *= 2;
+          continue;
+        }
+
+        return res;
+      }
+    }
+
     async function llamarGemini(mensajeUsuario) {
       const apiKey = getGeminiKey();
       if (!apiKey) { abrirConfigIA(); return null; }
@@ -1872,16 +1910,20 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
         generationConfig: { temperature: 0.9, maxOutputTokens: 800 }
       };
 
-      const res = await fetch(GEMINI_URL(apiKey), {
+      const res = await fetchGeminiConReintentos(GEMINI_URL(apiKey), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (data.error) {
+      if (data.error || !res.ok) {
         iaHistorial.pop(); // no dejar el turno huérfano en el historial
-        throw new Error(data.error.message || 'Error consultando a Gemini');
+        const msg = data.error?.message || '';
+        if (res.status === 429 || res.status === 503 || /high demand|overloaded|quota/i.test(msg)) {
+          throw new Error('El modelo está con mucha demanda ahora mismo. Ya reintenté varias veces — probá de nuevo en unos segundos.');
+        }
+        throw new Error(msg || 'Error consultando a Gemini');
       }
 
       const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
@@ -2856,7 +2898,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
       if (!bar) return;
       if (ult) {
         bar.innerHTML = `
-          <span class="uv-label">▶ Último visto:</span>
+          <span class="uv-label"> Último visto:</span>
           <span class="uv-val">T${ult.season} E${ult.episode}${ult.epName ? ' — ' + ult.epName : ''}</span>
           <button class="uv-btn" onclick="irAUltimoVisto('${serie.id}')">Ir</button>
           <button class="uv-btn" onclick="limpiarUltimoVisto('${serie.id}')">✕</button>`;

@@ -1731,7 +1731,7 @@
        ASISTENTE AI (Google Gemini Flash)
     ═══════════════════════════════════════════════════════════════ */
     const GEMINI_KEY_STORAGE = 'gemini_api_key';
-    const GEMINI_MODEL       = 'gemini-2.5-flash'; // Modelo gratuito vía Google AI Studio
+    const GEMINI_MODEL       = 'gemini-flash-latest'; // Alias oficial de Google: siempre apunta al Flash estable más reciente
     const GEMINI_URL         = (key) => `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
 
     let iaHistorial = []; // historial de turnos { role: 'user'|'model', parts: [{text}] } para contexto multi-turno
@@ -2856,7 +2856,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
       if (!bar) return;
       if (ult) {
         bar.innerHTML = `
-          <span class="uv-label"> Último visto:</span>
+          <span class="uv-label">▶ Último visto:</span>
           <span class="uv-val">T${ult.season} E${ult.episode}${ult.epName ? ' — ' + ult.epName : ''}</span>
           <button class="uv-btn" onclick="irAUltimoVisto('${serie.id}')">Ir</button>
           <button class="uv-btn" onclick="limpiarUltimoVisto('${serie.id}')">✕</button>`;

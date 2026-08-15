@@ -1732,13 +1732,26 @@
     ═══════════════════════════════════════════════════════════════ */
     const GEMINI_KEY_STORAGE = 'gemini_api_key';
     const GEMINI_MODEL       = 'gemini-2.5-flash'; // Modelo gratuito vía Google AI Studio
-    const GEMINI_URL         = (key) => `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+    const GEMINI_URL         = (key) => `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`;
 
     let iaHistorial = []; // historial de turnos { role: 'user'|'model', parts: [{text}] } para contexto multi-turno
 
     // ── CONFIGURACIÓN DE API KEY ─────────────────────────
+    // Una API Key real de Google AI Studio es una sola línea corta (sin
+    // espacios, sin < > ni saltos de línea). Si lo guardado no cumple esto
+    // (por ejemplo si alguna vez se pegó código HTML por error), se descarta.
+    function esKeyValida(val) {
+      return !!val && val.length < 200 && !/[\s<>]/.test(val);
+    }
+
     function getGeminiKey() {
-      return localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+      const val = localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+      if (val && !esKeyValida(val)) {
+        // Key corrupta (ej: se pegó HTML por error) → se limpia sola
+        localStorage.removeItem(GEMINI_KEY_STORAGE);
+        return '';
+      }
+      return val;
     }
 
     function abrirConfigIA() {
@@ -1756,6 +1769,10 @@
     function guardarGeminiKey() {
       const val = document.getElementById('gemini-api-key-input').value.trim();
       if (!val) { mostrarNotificacion('Pegá una API Key válida', false); return; }
+      if (!esKeyValida(val)) {
+        mostrarNotificacion('❌ Eso no parece una API Key válida (pegaste algo muy largo o con etiquetas). Copiá solo la key de aistudio.google.com/apikey', false);
+        return;
+      }
       localStorage.setItem(GEMINI_KEY_STORAGE, val);
       mostrarNotificacion('✔ API Key guardada. Asistente activado');
       cerrarConfigIA();

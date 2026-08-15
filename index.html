@@ -1157,6 +1157,229 @@
     .ep-result-item:hover { background: rgba(226,185,106,0.1); }
     .ep-result-item .ep-num { color: var(--gold); font-weight: 700; margin-right: 0.4rem; }
 
+    /* ═══════════════════════════ MODAL CONFIG API KEY ═══════════════════════════ */
+    .ai-config-help {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0.9rem 0 1.1rem;
+    }
+    .ai-config-help a { color: var(--gold); text-decoration: none; }
+    .ai-config-help a:hover { text-decoration: underline; }
+
+    /* ═══════════════════════════ VISTA ASISTENTE AI ═══════════════════════════ */
+    .view-ai {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5.3rem 2rem 0;
+    }
+
+    .ai-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding-bottom: 1.2rem;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 1.2rem;
+    }
+    .ai-topbar-title { display: flex; align-items: center; gap: 0.85rem; }
+    .ai-topbar-icon {
+      width: 42px; height: 42px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #8a6a97);
+      color: #0b0b0f;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(226,185,106,0.3);
+    }
+    .ai-topbar-title h2 {
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      letter-spacing: 1.5px;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .ai-topbar-title p { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+
+    .ai-chat-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding-bottom: 2rem;
+    }
+
+    .ai-messages {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+      max-height: 58vh;
+      padding: 0.4rem 0.2rem 1rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .ai-msg { display: flex; gap: 0.7rem; align-items: flex-start; max-width: 100%; }
+    .ai-msg-user { flex-direction: row-reverse; }
+
+    .ai-avatar {
+      width: 32px; height: 32px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), #8a6a97);
+      color: #0b0b0f;
+    }
+    .ai-msg-user .ai-avatar { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+    .ai-bubble {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 0.85rem 1.1rem;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text);
+      max-width: 70%;
+    }
+    .ai-msg-user .ai-bubble {
+      background: rgba(226,185,106,0.12);
+      border-color: rgba(226,185,106,0.28);
+    }
+    .ai-bubble strong { color: var(--gold); }
+    .ai-bubble p { margin-bottom: 0.5rem; }
+    .ai-bubble p:last-child { margin-bottom: 0; }
+
+    .ai-typing { display: flex; gap: 4px; padding: 0.3rem 0; }
+    .ai-typing span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--muted);
+      animation: aiTypingBounce 1.2s infinite ease-in-out;
+    }
+    .ai-typing span:nth-child(2) { animation-delay: 0.15s; }
+    .ai-typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes aiTypingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-5px); opacity: 1; } }
+
+    /* Tarjetas de recomendación de la IA */
+    .ai-cards-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.4rem;
+      max-width: 640px;
+    }
+    .ai-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform var(--tr), box-shadow var(--tr), border-color var(--tr);
+    }
+    .ai-card:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,0.5); border-color: var(--gold-dim); }
+    .ai-card-poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      display: block;
+      background: var(--surface);
+    }
+    .ai-card-body { padding: 0.6rem 0.65rem 0.75rem; }
+    .ai-card-title { font-size: 0.78rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 0.15rem; }
+    .ai-card-meta { font-size: 0.68rem; color: var(--muted); margin-bottom: 0.55rem; }
+    .ai-card-actions { display: flex; flex-direction: column; gap: 0.35rem; }
+    .btn-ai-add, .btn-ai-watch {
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0.5rem;
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background var(--tr), color var(--tr), opacity var(--tr);
+    }
+    .btn-ai-add {
+      background: var(--gold);
+      color: #0b0b0f;
+    }
+    .btn-ai-add:hover { background: var(--gold-soft); }
+    .btn-ai-add:disabled { background: var(--green-dim); color: #d7f5e4; cursor: default; opacity: 0.85; }
+    .btn-ai-watch {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-ai-watch:hover { background: rgba(255,255,255,0.13); }
+
+    .ai-quick-chips {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.9rem;
+    }
+    .ai-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background var(--tr), border-color var(--tr), color var(--tr);
+    }
+    .ai-chip:hover { border-color: var(--gold-dim); color: var(--gold); background: rgba(226,185,106,0.08); }
+
+    .ai-input-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.6rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 0.6rem 0.6rem 0.6rem 1rem;
+      position: sticky;
+      bottom: 1rem;
+    }
+    .ai-textarea {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      resize: none;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-height: 120px;
+      padding: 0.4rem 0;
+    }
+    .ai-textarea::placeholder { color: var(--muted-dim); }
+    .btn-ai-send {
+      width: 38px; height: 38px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: none;
+      background: var(--gold);
+      color: #0b0b0f;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--tr), transform var(--tr);
+    }
+    .btn-ai-send:hover { background: var(--gold-soft); transform: scale(1.06); }
+    .btn-ai-send:disabled { opacity: 0.5; cursor: default; transform: none; }
+
     /* ═══════════════════════════ FOOTER ═══════════════════════════ */
     footer {
       text-align: center;
@@ -1185,6 +1408,9 @@
       #pelicula-detalle { padding: 0 1.1rem 3rem; }
       .hero-poster { display: none !important; }
       .detalle-body { padding-top: 1.6rem; }
+      .view-ai { padding: 5rem 1.1rem 0; }
+      .ai-bubble { max-width: 85%; }
+      .ai-cards-row { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
     }
   </style>
 </head>
@@ -1210,6 +1436,7 @@
       <nav class="nav-tabs">
         <button class="nav-tab active" id="nav-inicio" onclick="switchView('inicio')">Inicio</button>
         <button class="nav-tab" id="nav-agregar" onclick="abrirModalAgregar()">＋ Agregar</button>
+        <button class="nav-tab" id="nav-ai" onclick="switchView('ai')">✦ Asistente AI</button>
       </nav>
     </div>
     <div class="header-right">
@@ -1255,6 +1482,26 @@
         <div id="entrada-suggestions" class="suggestions-container"></div>
       </div>
       <button class="btn-primary" id="guardarPeliculaBtn">BUSCAR Y GUARDAR</button>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL: Configuración API Key Gemini ═══ -->
+  <div class="modal-overlay" id="modal-ai-config">
+    <div class="modal">
+      <button class="modal-add-close" onclick="cerrarConfigIA()">✕</button>
+      <div class="modal-add-header">
+        <div class="card-title">⚙ CONFIGURAR ASISTENTE AI</div>
+        <div class="modal-add-sub">Ingresá tu API Key gratuita de Google AI Studio para activar el asistente cinéfilo.</div>
+      </div>
+      <div class="input-wrap">
+        <input type="password" id="gemini-api-key-input" placeholder="Pegá tu API Key (AIza...)" autocomplete="off" />
+      </div>
+      <p class="ai-config-help">
+        Conseguila gratis en
+        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.
+        Se guarda solo en tu navegador (localStorage), nunca se envía a nuestros servidores.
+      </p>
+      <button class="btn-primary" id="guardar-api-key-btn" onclick="guardarGeminiKey()">GUARDAR Y ACTIVAR</button>
     </div>
   </div>
 
@@ -1329,6 +1576,45 @@
     </section>
   </div>
 
+  <!-- ═══ VISTA: ASISTENTE AI ═══ -->
+  <div class="view view-hidden" id="view-ai">
+    <div class="ai-topbar">
+      <div class="ai-topbar-title">
+        <span class="ai-topbar-icon">✦</span>
+        <div>
+          <h2>Asistente Cinéfilo AI</h2>
+          <p>Recomendaciones por vibra, no por promedio inflado</p>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="abrirConfigIA()">⚙ API Key</button>
+    </div>
+
+    <div class="ai-chat-wrap">
+      <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg ai-msg-bot">
+          <div class="ai-avatar">✦</div>
+          <div class="ai-bubble">
+            ¡Hola! Soy tu asistente cinéfilo. Contame qué tenés ganas de ver — un tono, una vibra, un director, una serie parecida a algo que ya viste — y te tiro recomendaciones que <strong>todavía no tenés en tu catálogo</strong>, sin guiarme por promedios inflados de IMDb.
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-quick-chips" id="ai-quick-chips">
+        <button class="ai-chip" onclick="enviarSugerencia('Algo dramático y lento, de esos que se quedan pensando días después')">🎭 Drama lento</button>
+        <button class="ai-chip" onclick="enviarSugerencia('Una comedia liviana para desconectar la cabeza')">😂 Comedia liviana</button>
+        <button class="ai-chip" onclick="enviarSugerencia('Acción sin pensar mucho, pochoclera')">🔥 Acción pochoclera</button>
+        <button class="ai-chip" onclick="enviarSugerencia('Cine de autor, algo más exigente y visualmente ambicioso')">🧠 Cine de autor</button>
+        <button class="ai-chip" onclick="enviarSugerencia('Terror atmosférico, de tensión, no de sustos baratos')">👻 Terror atmosférico</button>
+        <button class="ai-chip" onclick="enviarSugerencia('Una serie corta para maratonear el fin de semana')">📺 Serie corta</button>
+      </div>
+
+      <div class="ai-input-bar">
+        <textarea id="ai-input" class="ai-textarea" placeholder="Contame qué tenés ganas de ver hoy..." rows="1"></textarea>
+        <button class="btn-ai-send" id="ai-send-btn" onclick="enviarMensajeIA()">➤</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <p>Creado por Santino Bahamondi</p>
   </footer>
@@ -1400,15 +1686,25 @@
 
     // ── NAVEGACIÓN SPA ───────────────────────────────────
     function switchView(view) {
-      const inicio = document.getElementById('view-inicio');
-      const player = document.getElementById('view-player');
+      const inicio    = document.getElementById('view-inicio');
+      const player    = document.getElementById('view-player');
+      const ai        = document.getElementById('view-ai');
       const navInicio = document.getElementById('nav-inicio');
+      const navAI     = document.getElementById('nav-ai');
+
+      inicio.classList.add('view-hidden');
+      player.classList.add('view-hidden');
+      ai.classList.add('view-hidden');
+      navInicio.classList.remove('active');
+      navAI.classList.remove('active');
+
       if (view === 'player') {
-        inicio.classList.add('view-hidden');
         player.classList.remove('view-hidden');
-        navInicio.classList.remove('active');
+      } else if (view === 'ai') {
+        ai.classList.remove('view-hidden');
+        navAI.classList.add('active');
+        if (!getGeminiKey()) abrirConfigIA();
       } else {
-        player.classList.add('view-hidden');
         inicio.classList.remove('view-hidden');
         navInicio.classList.add('active');
       }
@@ -1430,6 +1726,350 @@
     window.addEventListener('scroll', () => {
       document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30);
     });
+
+    /* ═══════════════════════════════════════════════════════════════
+       ASISTENTE AI (Google Gemini Flash)
+    ═══════════════════════════════════════════════════════════════ */
+    const GEMINI_KEY_STORAGE = 'gemini_api_key';
+    const GEMINI_MODEL       = 'gemini-2.5-flash'; // Modelo gratuito vía Google AI Studio
+    const GEMINI_URL         = (key) => `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+
+    let iaHistorial = []; // historial de turnos { role: 'user'|'model', parts: [{text}] } para contexto multi-turno
+
+    // ── CONFIGURACIÓN DE API KEY ─────────────────────────
+    function getGeminiKey() {
+      return localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+    }
+
+    function abrirConfigIA() {
+      document.getElementById('gemini-api-key-input').value = getGeminiKey();
+      document.getElementById('modal-ai-config').classList.add('open');
+      setTimeout(() => document.getElementById('gemini-api-key-input')?.focus(), 200);
+    }
+    function cerrarConfigIA() {
+      document.getElementById('modal-ai-config').classList.remove('open');
+    }
+    document.getElementById('modal-ai-config').addEventListener('click', function (e) {
+      if (e.target === this) cerrarConfigIA();
+    });
+
+    function guardarGeminiKey() {
+      const val = document.getElementById('gemini-api-key-input').value.trim();
+      if (!val) { mostrarNotificacion('Pegá una API Key válida', false); return; }
+      localStorage.setItem(GEMINI_KEY_STORAGE, val);
+      mostrarNotificacion('✔ API Key guardada. Asistente activado');
+      cerrarConfigIA();
+      document.getElementById('ai-input')?.focus();
+    }
+
+    // ── UTILIDADES DE CHAT ───────────────────────────────
+    function scrollChatAbajo() {
+      const cont = document.getElementById('ai-messages');
+      cont.scrollTop = cont.scrollHeight;
+    }
+
+    function agregarMensajeUsuario(texto) {
+      const cont = document.getElementById('ai-messages');
+      const div = document.createElement('div');
+      div.className = 'ai-msg ai-msg-user';
+      div.innerHTML = `<div class="ai-avatar">🙂</div><div class="ai-bubble"></div>`;
+      div.querySelector('.ai-bubble').textContent = texto;
+      cont.appendChild(div);
+      scrollChatAbajo();
+    }
+
+    function agregarMensajeBotTexto(texto) {
+      const cont = document.getElementById('ai-messages');
+      const div = document.createElement('div');
+      div.className = 'ai-msg ai-msg-bot';
+      const parrafos = texto.split(/\n{2,}/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+      div.innerHTML = `<div class="ai-avatar">✦</div><div class="ai-bubble">${parrafos || texto}</div>`;
+      cont.appendChild(div);
+      scrollChatAbajo();
+      return div.querySelector('.ai-bubble');
+    }
+
+    function mostrarTypingIA() {
+      const cont = document.getElementById('ai-messages');
+      const div = document.createElement('div');
+      div.className = 'ai-msg ai-msg-bot';
+      div.id = 'ai-typing-indicator';
+      div.innerHTML = `<div class="ai-avatar">✦</div><div class="ai-bubble"><div class="ai-typing"><span></span><span></span><span></span></div></div>`;
+      cont.appendChild(div);
+      scrollChatAbajo();
+    }
+    function quitarTypingIA() {
+      document.getElementById('ai-typing-indicator')?.remove();
+    }
+
+    function enviarSugerencia(texto) {
+      const input = document.getElementById('ai-input');
+      input.value = texto;
+      enviarMensajeIA();
+    }
+
+    // Autoexpandir textarea
+    document.getElementById('ai-input')?.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    document.getElementById('ai-input')?.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        enviarMensajeIA();
+      }
+    });
+
+    // ── SYSTEM PROMPT ────────────────────────────────────
+    function construirSystemPromptIA() {
+      const nombresCatalogo = peliculasData.map(p => p.name).filter(Boolean);
+      const listaCatalogo = nombresCatalogo.length ? nombresCatalogo.join(', ') : '(el catálogo todavía está vacío)';
+
+      return `Sos un asistente cinéfilo experto e íntimo, con el criterio curatorial de Letterboxd, la practicidad de disponibilidad de JustWatch, la amplitud de catálogo de TMDb y el ojo crítico de Criticker.
+
+Reglas de personalidad:
+- Recomendás según "vibra", tono emocional, ritmo y contexto (qué le pasó al usuario, con quién va a ver, qué ganas tiene), NO según promedios inflados de IMDb ni popularidad genérica.
+- Sos conversacional, cercano, breve y concreto. Nada de listas genéricas de "top 10". Preferís 1 a 4 recomendaciones bien justificadas antes que muchas al voleo.
+- Si el pedido del usuario es ambiguo, podés hacer una pregunta corta para afinar el tono antes de recomendar.
+- Respondés siempre en español rioplatense, natural, sin sonar a folleto.
+
+Catálogo actual del usuario (YA guardado, NUNCA lo vuelvas a recomendar): ${listaCatalogo}
+
+Regla de formato OBLIGATORIA: cuando recomiendes uno o más títulos concretos (películas o series reales, que existan), además de tu respuesta conversacional normal en texto plano, agregá SIEMPRE al final un bloque de código con este formato EXACTO y nada más adentro:
+\`\`\`json
+{"recomendaciones":[{"titulo":"Nombre exacto y real del título","tipo":"movie","anio":"2010"}]}
+\`\`\`
+Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo vacío "" si no). Si tu respuesta es solo charla, una pregunta para afinar gustos, o no estás recomendando nada concreto todavía, NO incluyas ningún bloque json.`;
+    }
+
+    // ── LLAMADA A GEMINI ─────────────────────────────────
+    async function llamarGemini(mensajeUsuario) {
+      const apiKey = getGeminiKey();
+      if (!apiKey) { abrirConfigIA(); return null; }
+
+      iaHistorial.push({ role: 'user', parts: [{ text: mensajeUsuario }] });
+
+      const body = {
+        system_instruction: { parts: [{ text: construirSystemPromptIA() }] },
+        contents: iaHistorial,
+        generationConfig: { temperature: 0.9, maxOutputTokens: 800 }
+      };
+
+      const res = await fetch(GEMINI_URL(apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        iaHistorial.pop(); // no dejar el turno huérfano en el historial
+        throw new Error(data.error.message || 'Error consultando a Gemini');
+      }
+
+      const texto = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
+      iaHistorial.push({ role: 'model', parts: [{ text: texto }] });
+      return texto;
+    }
+
+    // Extrae el bloque ```json {...}``` con recomendaciones, si existe
+    function extraerRecomendaciones(textoCompleto) {
+      const match = textoCompleto.match(/```json\s*([\s\S]*?)```/i);
+      if (!match) return { textoLimpio: textoCompleto.trim(), recomendaciones: [] };
+      let recomendaciones = [];
+      try {
+        const json = JSON.parse(match[1].trim());
+        recomendaciones = Array.isArray(json.recomendaciones) ? json.recomendaciones : [];
+      } catch { recomendaciones = []; }
+      const textoLimpio = textoCompleto.replace(match[0], '').trim();
+      return { textoLimpio, recomendaciones };
+    }
+
+    // ── ENVÍO DE MENSAJE PRINCIPAL ───────────────────────
+    async function enviarMensajeIA() {
+      const input = document.getElementById('ai-input');
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      if (!getGeminiKey()) { abrirConfigIA(); return; }
+
+      agregarMensajeUsuario(texto);
+      input.value = '';
+      input.style.height = 'auto';
+
+      const sendBtn = document.getElementById('ai-send-btn');
+      sendBtn.disabled = true;
+      mostrarTypingIA();
+
+      try {
+        const respuesta = await llamarGemini(texto);
+        quitarTypingIA();
+        if (respuesta === null) { sendBtn.disabled = false; return; }
+
+        const { textoLimpio, recomendaciones } = extraerRecomendaciones(respuesta);
+        agregarMensajeBotTexto(textoLimpio || respuesta);
+
+        if (recomendaciones.length) {
+          await renderTarjetasRecomendadas(recomendaciones);
+        }
+      } catch (err) {
+        quitarTypingIA();
+        agregarMensajeBotTexto('⚠️ No pude conectar con Gemini: ' + err.message + '. Revisá tu API Key en ⚙.');
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    // ── TMDB: BÚSQUEDA DE PELÍCULAS (para el asistente) ──
+    async function buscarTMDBPelicula(query) {
+      const res  = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=es-ES`);
+      const data = await res.json();
+      return data.results || [];
+    }
+
+    async function buscarTMDBPeliculaByID(id) {
+      const res  = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=credits,external_ids`);
+      return res.json();
+    }
+
+    // ── RENDERIZAR TARJETAS DE RECOMENDACIÓN ─────────────
+    async function renderTarjetasRecomendadas(recomendaciones) {
+      const nombresCatalogo = peliculasData.map(p => (p.name || '').toLowerCase().trim());
+      const cont = document.getElementById('ai-messages');
+      const wrap = document.createElement('div');
+      wrap.className = 'ai-msg ai-msg-bot';
+      wrap.innerHTML = `<div class="ai-avatar">✦</div><div class="ai-cards-row" id="ai-cards-${Date.now()}"></div>`;
+      const row = wrap.querySelector('.ai-cards-row');
+      cont.appendChild(wrap);
+      scrollChatAbajo();
+
+      for (const rec of recomendaciones.slice(0, 4)) {
+        if (!rec.titulo) continue;
+        if (nombresCatalogo.includes(rec.titulo.toLowerCase().trim())) continue; // ya está en el catálogo
+
+        try {
+          const esSerie = rec.tipo === 'tv';
+          const resultados = esSerie ? await buscarTMDBSeries(rec.titulo) : await buscarTMDBPelicula(rec.titulo);
+          if (!resultados.length) continue;
+
+          // Si hay año, intenta matchear; si no, toma el primero
+          let match = resultados[0];
+          if (rec.anio) {
+            const conAño = resultados.find(r => {
+              const fecha = esSerie ? r.first_air_date : r.release_date;
+              return fecha && fecha.slice(0, 4) === String(rec.anio);
+            });
+            if (conAño) match = conAño;
+          }
+
+          const titulo  = esSerie ? match.name : match.title;
+          const fecha   = esSerie ? match.first_air_date : match.release_date;
+          const año     = fecha ? fecha.slice(0, 4) : '—';
+          const poster  = match.poster_path ? `https://image.tmdb.org/t/p/w342${match.poster_path}` : '';
+          const rating  = match.vote_average ? match.vote_average.toFixed(1) : '—';
+
+          const card = document.createElement('div');
+          card.className = 'ai-card';
+          const cardId = 'ai-add-' + match.id + '-' + (esSerie ? 'tv' : 'movie');
+          card.innerHTML = `
+            ${poster ? `<img class="ai-card-poster" src="${poster}" alt="${titulo}" loading="lazy" />`
+                      : `<div class="ai-card-poster" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.7rem;">Sin imagen</div>`}
+            <div class="ai-card-body">
+              <div class="ai-card-title" translate="no">${titulo}</div>
+              <div class="ai-card-meta">${año} · ⭐ ${rating} · ${esSerie ? 'Serie' : 'Película'}</div>
+              <div class="ai-card-actions">
+                <button class="btn-ai-add" id="${cardId}" onclick="agregarDesdeIA(${match.id}, '${esSerie ? 'tv' : 'movie'}', this)">＋ Agregar a mi lista</button>
+                <button class="btn-ai-watch" onclick="verAhoraIA(${match.id}, '${esSerie ? 'tv' : 'movie'}', this)">▶ Ver ahora</button>
+              </div>
+            </div>`;
+          row.appendChild(card);
+        } catch { /* si falla la búsqueda de un título, seguimos con el resto */ }
+      }
+
+      if (!row.children.length) wrap.remove();
+      scrollChatAbajo();
+    }
+
+    // ── AGREGAR A JSONBIN DESDE TARJETA DE LA IA ─────────
+    async function construirDatoDesdeTMDB(tmdbID, tipo) {
+      if (tipo === 'tv') {
+        const tmdb = await buscarTMDBSerieByID(tmdbID);
+        const imdbID  = tmdb.external_ids?.imdb_id || '';
+        const poster  = tmdb.poster_path ? `https://image.tmdb.org/t/p/w500${tmdb.poster_path}` : '';
+        const gif     = await buscarGIF(tmdb.name);
+        const seasons = (tmdb.seasons || [])
+          .filter(s => s.season_number > 0)
+          .map(s => ({ season_number: s.season_number, episode_count: s.episode_count }));
+        return {
+          id: generarID(), type: 'tv', name: tmdb.name, description: tmdb.overview,
+          cover: poster, release: tmdb.first_air_date,
+          rating: tmdb.vote_average ? tmdb.vote_average.toFixed(1) : 'N/A',
+          genre: (tmdb.genres || []).map(g => g.name).join(', '),
+          language: tmdb.original_language, country: (tmdb.origin_country || []).join(', '),
+          seasons, tmdbID: tmdb.id, imdbID, gif
+        };
+      } else {
+        const tmdb = await buscarTMDBPeliculaByID(tmdbID);
+        const director = (tmdb.credits?.crew || []).find(c => c.job === 'Director')?.name || 'N/A';
+        const actores   = (tmdb.credits?.cast || []).slice(0, 4).map(c => c.name).join(', ') || 'N/A';
+        const poster    = tmdb.poster_path ? `https://image.tmdb.org/t/p/w500${tmdb.poster_path}` : '';
+        const gif       = await buscarGIF(tmdb.title);
+        return {
+          id: generarID(), type: 'movie', name: tmdb.title, description: tmdb.overview,
+          cover: poster,
+          duration: tmdb.runtime ? `${tmdb.runtime} min` : 'N/A',
+          release: tmdb.release_date, director,
+          rating: tmdb.vote_average ? tmdb.vote_average.toFixed(1) : 'N/A',
+          genre: (tmdb.genres || []).map(g => g.name).join(', '),
+          language: tmdb.original_language, country: (tmdb.production_countries || []).map(c => c.name).join(', '),
+          actors: actores, awards: 'N/A', gif,
+          imdbID: tmdb.external_ids?.imdb_id || '', tmdbID: String(tmdb.id)
+        };
+      }
+    }
+
+    async function agregarDesdeIA(tmdbID, tipo, btn) {
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Agregando...'; }
+      try {
+        const data = await construirDatoDesdeTMDB(tmdbID, tipo);
+        const actual = await dbLeer();
+        if (actual.some(p => (p.name || '').toLowerCase().trim() === data.name.toLowerCase().trim())) {
+          mostrarNotificacion('Ya está en tu catálogo', false);
+          if (btn) { btn.textContent = '✔ Ya en tu lista'; btn.disabled = true; }
+          return data;
+        }
+        actual.push(data);
+        await dbGuardar(actual);
+        mostrarNotificacion('✅ Agregado: ' + data.name);
+        if (btn) { btn.textContent = '✔ Agregado'; }
+        await cargarPeliculas();
+        return data;
+      } catch (err) {
+        mostrarNotificacion('❌ ' + err.message, false);
+        if (btn) { btn.disabled = false; btn.textContent = '＋ Agregar a mi lista'; }
+        return null;
+      }
+    }
+
+    async function verAhoraIA(tmdbID, tipo, btn) {
+      const originalTxt = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Cargando...'; }
+      try {
+        // Si ya está en el catálogo, la reutilizamos; si no, la agregamos primero
+        const data = await construirDatoDesdeTMDB(tmdbID, tipo);
+        let idx = peliculasData.findIndex(p => (p.name || '').toLowerCase().trim() === data.name.toLowerCase().trim());
+        if (idx === -1) {
+          const guardada = await agregarDesdeIA(tmdbID, tipo, null);
+          if (!guardada) throw new Error('No se pudo cargar el título');
+          idx = peliculasData.findIndex(p => p.id === guardada.id);
+        }
+        if (idx !== -1) mostrarDetalle(idx);
+      } catch (err) {
+        mostrarNotificacion('❌ ' + err.message, false);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = originalTxt || '▶ Ver ahora'; }
+      }
+    }
 
     // ── HERO DESTACADO ───────────────────────────────────
     function renderHero() {
@@ -2199,7 +2839,7 @@
       if (!bar) return;
       if (ult) {
         bar.innerHTML = `
-          <span class="uv-label">▶ Último visto:</span>
+          <span class="uv-label"> Último visto:</span>
           <span class="uv-val">T${ult.season} E${ult.episode}${ult.epName ? ' — ' + ult.epName : ''}</span>
           <button class="uv-btn" onclick="irAUltimoVisto('${serie.id}')">Ir</button>
           <button class="uv-btn" onclick="limpiarUltimoVisto('${serie.id}')">✕</button>`;

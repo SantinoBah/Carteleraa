@@ -833,7 +833,7 @@
     .btn-back:hover { background: rgba(255,255,255,0.12); transform: translateX(-3px); }
 
     #pelicula-detalle {
-      max-width: 980px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 2rem 4rem;
       min-height: 340px;
@@ -862,10 +862,10 @@
       width: 100%;
       height: auto;
       display: block;
-      max-height: 440px;
+      max-height: 400px;
       object-fit: cover;
       object-position: top center;
-      filter: brightness(0.55) saturate(0.9);
+      filter: brightness(0.5) saturate(0.9);
     }
     .hero-gradient {
       position: absolute;
@@ -883,7 +883,18 @@
       display: none;
     }
 
-    .detalle-body { padding: 3.2rem 0.25rem 0; }
+    /* Layout de dos columnas: reproductor grande a la izquierda, info a la derecha */
+    .detalle-body {
+      padding: 2.4rem 0.25rem 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.4rem;
+    }
+    @media (min-width: 1024px) {
+      .detalle-body { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; }
+      .cine-info-col { position: sticky; top: 5.5rem; }
+    }
+    .cine-player-col { min-width: 0; }
 
     .detalle-title-area {
       margin-bottom: 0.9rem;
@@ -935,12 +946,12 @@
       line-height: 1.8;
       color: #c4bfb7;
       margin-bottom: 1.5rem;
-      max-width: 720px;
+      max-width: 100%;
     }
 
     .meta-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 0.65rem 1.75rem;
       margin-bottom: 1.75rem;
       padding-bottom: 1.5rem;
@@ -1382,6 +1393,12 @@
     .btn-ai-send:hover { background: var(--gold-soft); transform: scale(1.06); }
     .btn-ai-send:disabled { opacity: 0.5; cursor: default; transform: none; }
 
+    /* ═══════════════════════════ GOOGLE TRANSLATE (oculto, solo funcional) ═══════════════════════════ */
+    .goog-te-banner-frame, .skiptranslate { display: none !important; }
+    body { top: 0 !important; }
+    .goog-tooltip, .goog-tooltip:hover { display: none !important; }
+    .goog-text-highlight { background: none !important; box-shadow: none !important; }
+
     /* ═══════════════════════════ FOOTER ═══════════════════════════ */
     footer {
       text-align: center;
@@ -1452,6 +1469,8 @@
   </header>
 
   <div id="toast"></div>
+
+  <div id="google_translate_element" style="display:none;"></div>
 
   <!-- ═══ MODAL: ¿Qué miro hoy? ═══ -->
   <div class="modal-overlay" id="modal-random">
@@ -1624,7 +1643,6 @@
   <script>
     const OMDB_API_KEY    = 'c7b893ce';
     const TMDB_API_KEY    = '8e21dd703e7130cc62b5cf2edad806fa';
-    const TENOR_API_KEY   = 'AIzaSyBMX5wwWOWfL5EKrK2CbLeEJyJnyLI8gyQ';
 
     // ── JSONBIN CONFIG ───────────────────────────────────
     const JSONBIN_BIN_ID  = '6a1c3a61ddf5aa59f77bce0d';
@@ -1663,7 +1681,6 @@
     let peliculasData       = [];
     let tipoEntrada         = 'movie'; // 'movie' | 'tv'
     let fuse;
-    let gifIndiceActual     = 0;
     let entradaSeleccionada = null;
     let peliculaRandomActual = null;
 
@@ -2069,7 +2086,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
         const tmdb = await buscarTMDBSerieByID(tmdbID);
         const imdbID  = tmdb.external_ids?.imdb_id || '';
         const poster  = tmdb.poster_path ? `https://image.tmdb.org/t/p/w500${tmdb.poster_path}` : '';
-        const gif     = await buscarGIF(tmdb.name);
+        const backdrop = tmdb.backdrop_path ? `https://image.tmdb.org/t/p/w1280${tmdb.backdrop_path}` : '';
         const seasons = (tmdb.seasons || [])
           .filter(s => s.season_number > 0)
           .map(s => ({ season_number: s.season_number, episode_count: s.episode_count }));
@@ -2079,14 +2096,14 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
           rating: tmdb.vote_average ? tmdb.vote_average.toFixed(1) : 'N/A',
           genre: (tmdb.genres || []).map(g => g.name).join(', '),
           language: tmdb.original_language, country: (tmdb.origin_country || []).join(', '),
-          seasons, tmdbID: tmdb.id, imdbID, gif
+          seasons, tmdbID: tmdb.id, imdbID, backdrop
         };
       } else {
         const tmdb = await buscarTMDBPeliculaByID(tmdbID);
         const director = (tmdb.credits?.crew || []).find(c => c.job === 'Director')?.name || 'N/A';
         const actores   = (tmdb.credits?.cast || []).slice(0, 4).map(c => c.name).join(', ') || 'N/A';
         const poster    = tmdb.poster_path ? `https://image.tmdb.org/t/p/w500${tmdb.poster_path}` : '';
-        const gif       = await buscarGIF(tmdb.title);
+        const backdrop  = tmdb.backdrop_path ? `https://image.tmdb.org/t/p/w1280${tmdb.backdrop_path}` : '';
         return {
           id: generarID(), type: 'movie', name: tmdb.title, description: tmdb.overview,
           cover: poster,
@@ -2095,7 +2112,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
           rating: tmdb.vote_average ? tmdb.vote_average.toFixed(1) : 'N/A',
           genre: (tmdb.genres || []).map(g => g.name).join(', '),
           language: tmdb.original_language, country: (tmdb.production_countries || []).map(c => c.name).join(', '),
-          actors: actores, awards: 'N/A', gif,
+          actors: actores, awards: 'N/A', backdrop,
           imdbID: tmdb.external_ids?.imdb_id || '', tmdbID: String(tmdb.id)
         };
       }
@@ -2158,7 +2175,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
 
       const destacada = peliculasData[peliculasData.length - 1];
       const idx = peliculasData.length - 1;
-      const bg  = destacada.gif && destacada.gif.trim() ? destacada.gif : (destacada.cover || '');
+      const bg  = destacada.backdrop && destacada.backdrop.trim() ? destacada.backdrop : (destacada.cover || '');
 
       document.getElementById('hero-bg-img').src = bg;
       document.getElementById('hero-title').textContent = destacada.name || '';
@@ -2310,8 +2327,8 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
       episodiosCache = {};
 
       const cover   = p.cover && p.cover !== 'N/A' && p.cover.trim() ? p.cover : '';
-      const gifUrl  = p.gif  && p.gif.trim() ? p.gif : '';
-      const hero    = gifUrl || cover;
+      const bannerUrl = p.backdrop && p.backdrop.trim() ? p.backdrop : '';
+      const hero    = bannerUrl || cover;
       const vista   = estaVista(p.id);
       const esSerie = p.type === 'tv';
       const safeImdb = (p.imdbID || '').replace(/'/g, '');
@@ -2338,53 +2355,57 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
           ${cover ? `<img class="hero-poster" src="${cover}" alt="${p.name}" />` : ''}
         </div>
         <div class="detalle-body">
-          <div class="detalle-title-area">
-            <h2 class="detalle-title" translate="no">${p.name}</h2>
-            ${esSerie ? '<span class="badge" style="border-color:#1a3a6e;color:#7ab8ff;align-self:center;">📺 Serie</span>' : ''}
-            ${vista ? '<span class="vista-detalle-badge">✔ Vista</span>' : ''}
+          <div class="cine-player-col">
+            <p class="section-label">${esSerie ? 'VER SERIE' : 'VER PELÍCULA'}</p>
+            ${episodioHTML}
+            <div class="server-buttons">
+              ${!esSerie ? `<button class="iframe-btn" data-servidor="embed69"  onclick="reproducir('embed69','${safeImdb}',this)">Embed69</button>` : ''}
+              ${!esSerie ? `<button class="iframe-btn" data-servidor="xupalace" onclick="reproducir('xupalace','${safeImdb}',this)">Xupalace</button>` : ''}
+              <button class="iframe-btn" data-servidor="vidsrc"      onclick="reproducir('vidsrc','${safeImdb}',this)">VidSrc</button>
+              <button class="iframe-btn" data-servidor="autoembed"   onclick="reproducir('autoembed','${safeTmdb}',this)">AutoEmbed</button>
+              <button class="iframe-btn" data-servidor="2embed"      onclick="reproducir('2embed','${safeTmdb}',this)">2Embed</button>
+              <button class="iframe-btn" data-servidor="multiembed"  onclick="reproducir('multiembed','${safeTmdb}',this)">MultiEmbed</button>
+              <button class="iframe-btn" data-servidor="embedsu"     onclick="reproducir('embedsu','${safeTmdb}',this)">Embed.su</button>
+              <button class="iframe-btn" data-servidor="vidlink"     onclick="reproducir('vidlink','${safeTmdb}',this)">VidLink</button>
+              <button class="iframe-btn" onclick="verTrailer('${safeName}')">▶ Trailer</button>
+            </div>
+            <div class="video-container">
+              <iframe id="iframe-player" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            </div>
           </div>
-          <div class="detalle-badges">
-            ${p.genre   ? p.genre.split(',').map(g => `<span class="badge">${g.trim()}</span>`).join('') : ''}
-            ${p.rating  && p.rating   !== 'N/A' ? `<span class="badge gold">⭐ ${p.rating}</span>` : ''}
-            ${!esSerie  && p.duration && p.duration !== 'N/A' ? `<span class="badge">${p.duration}</span>` : ''}
-            ${esSerie   && p.seasons  ? `<span class="badge">${p.seasons.length} temporadas</span>` : ''}
-          </div>
-          ${p.description ? `<p class="detalle-desc">${p.description}</p>` : ''}
-          <div class="meta-grid">
-            ${p.release  && p.release  !== 'N/A' ? `<div class="meta-item"><label>Lanzamiento</label><span>${p.release}</span></div>` : ''}
-            ${!esSerie && p.director && p.director !== 'N/A' ? `<div class="meta-item"><label>Director</label><span>${p.director}</span></div>` : ''}
-            ${p.language && p.language !== 'N/A' ? `<div class="meta-item"><label>Idioma</label><span>${p.language}</span></div>` : ''}
-            ${p.country  && p.country  !== 'N/A' ? `<div class="meta-item"><label>País</label><span>${p.country}</span></div>` : ''}
-            ${!esSerie && p.actors && p.actors !== 'N/A' ? `<div class="meta-item" style="grid-column:1/-1"><label>Actores</label><span>${p.actors}</span></div>` : ''}
-            ${!esSerie && p.awards && p.awards !== 'N/A' ? `<div class="meta-item" style="grid-column:1/-1"><label>Premios</label><span>${p.awards}</span></div>` : ''}
-          </div>
-          <p class="section-label">${esSerie ? 'VER SERIE' : 'VER PELÍCULA'}</p>
-          ${episodioHTML}
-          <div class="server-buttons">
-            ${!esSerie ? `<button class="iframe-btn" data-servidor="embed69"  onclick="reproducir('embed69','${safeImdb}',this)">Embed69</button>` : ''}
-            ${!esSerie ? `<button class="iframe-btn" data-servidor="xupalace" onclick="reproducir('xupalace','${safeImdb}',this)">Xupalace</button>` : ''}
-            <button class="iframe-btn" data-servidor="vidsrc"      onclick="reproducir('vidsrc','${safeImdb}',this)">VidSrc</button>
-            <button class="iframe-btn" data-servidor="autoembed"   onclick="reproducir('autoembed','${safeTmdb}',this)">AutoEmbed</button>
-            <button class="iframe-btn" data-servidor="2embed"      onclick="reproducir('2embed','${safeTmdb}',this)">2Embed</button>
-            <button class="iframe-btn" data-servidor="multiembed"  onclick="reproducir('multiembed','${safeTmdb}',this)">MultiEmbed</button>
-            <button class="iframe-btn" data-servidor="embedsu"     onclick="reproducir('embedsu','${safeTmdb}',this)">Embed.su</button>
-            <button class="iframe-btn" data-servidor="vidlink"     onclick="reproducir('vidlink','${safeTmdb}',this)">VidLink</button>
-            <button class="iframe-btn" onclick="verTrailer('${safeName}')">▶ Trailer</button>
-          </div>
-          <div class="video-container">
-            <iframe id="iframe-player" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-          </div>
-          <div class="action-buttons">
-            <button class="btn-vista ${vista ? 'marcada' : ''}" id="btn-vista"
-              onclick="toggleVista('${p.id}', ${index})">
-              ${vista ? '✔ Marcar como no vista' : '○ Marcar como vista'}
-            </button>
-            ${esSerie ? `<button class="btn-secondary" id="btn-marcar-ep"
-              data-serie-id="${p.id}" data-season="" data-episode="" data-name=""
-              onclick="marcarEpisodioVisto(this)">📌 Marcar episodio como visto</button>` : ''}
-            <button class="btn-secondary" id="btn-traducir" onclick="traducirDetalle()">🌐 Traducir</button>
-            <button class="btn-secondary" onclick="cambiarGIF(peliculasData[${index}])">🔄 Cambiar GIF</button>
-            <button class="btn-danger" onclick="eliminarPelicula('${p.id}')">🗑 Eliminar</button>
+          <div class="cine-info-col">
+            <div class="detalle-title-area">
+              <h2 class="detalle-title" translate="no">${p.name}</h2>
+              ${esSerie ? '<span class="badge" style="border-color:#1a3a6e;color:#7ab8ff;align-self:center;">📺 Serie</span>' : ''}
+              ${vista ? '<span class="vista-detalle-badge">✔ Vista</span>' : ''}
+            </div>
+            <div class="detalle-badges">
+              ${p.genre   ? p.genre.split(',').map(g => `<span class="badge">${g.trim()}</span>`).join('') : ''}
+              ${p.rating  && p.rating   !== 'N/A' ? `<span class="badge gold">⭐ ${p.rating}</span>` : ''}
+              ${!esSerie  && p.duration && p.duration !== 'N/A' ? `<span class="badge">${p.duration}</span>` : ''}
+              ${esSerie   && p.seasons  ? `<span class="badge">${p.seasons.length} temporadas</span>` : ''}
+            </div>
+            ${p.description ? `<p class="detalle-desc">${p.description}</p>` : ''}
+            <div class="meta-grid">
+              ${p.release  && p.release  !== 'N/A' ? `<div class="meta-item"><label>Lanzamiento</label><span>${p.release}</span></div>` : ''}
+              ${!esSerie && p.director && p.director !== 'N/A' ? `<div class="meta-item"><label>Director</label><span>${p.director}</span></div>` : ''}
+              ${p.language && p.language !== 'N/A' ? `<div class="meta-item"><label>Idioma</label><span>${p.language}</span></div>` : ''}
+              ${p.country  && p.country  !== 'N/A' ? `<div class="meta-item"><label>País</label><span>${p.country}</span></div>` : ''}
+              ${!esSerie && p.actors && p.actors !== 'N/A' ? `<div class="meta-item" style="grid-column:1/-1"><label>Actores</label><span>${p.actors}</span></div>` : ''}
+              ${!esSerie && p.awards && p.awards !== 'N/A' ? `<div class="meta-item" style="grid-column:1/-1"><label>Premios</label><span>${p.awards}</span></div>` : ''}
+            </div>
+            <div class="action-buttons">
+              <button class="btn-vista ${vista ? 'marcada' : ''}" id="btn-vista"
+                onclick="toggleVista('${p.id}', ${index})">
+                ${vista ? '✔ Marcar como no vista' : '○ Marcar como vista'}
+              </button>
+              ${esSerie ? `<button class="btn-secondary" id="btn-marcar-ep"
+                data-serie-id="${p.id}" data-season="" data-episode="" data-name=""
+                onclick="marcarEpisodioVisto(this)">📌 Marcar episodio como visto</button>` : ''}
+              <button class="btn-secondary" onclick="traducirPagina()">🌐 Traducir</button>
+              <button class="btn-secondary" onclick="cambiarBanner(peliculasData[${index}])">🔄 Cambiar banner</button>
+              <button class="btn-danger" onclick="eliminarPelicula('${p.id}')">🗑 Eliminar</button>
+            </div>
           </div>
         </div>`;
 
@@ -2522,28 +2543,38 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
       }
     }
 
-    // ── GIF ──────────────────────────────────────────────
-    async function buscarGIFsTenor(nombre, limit = 5) {
+    // ── BANNERS TMDB (reemplaza los GIFs) ────────────────
+    // Cache en memoria de los backdrops ya buscados por id de TMDB, para no
+    // volver a pedirlos a la API cada vez que se hace click en "Cambiar banner".
+    const bannersCache = {};
+
+    async function buscarBackdropsTMDB(tmdbID, tipo) {
+      if (!tmdbID) return [];
+      if (bannersCache[tmdbID]) return bannersCache[tmdbID];
       try {
-        const res  = await fetch(`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(nombre)}&key=${TENOR_API_KEY}&limit=${limit}&media_filter=gif`);
+        const endpoint = tipo === 'tv' ? 'tv' : 'movie';
+        const res  = await fetch(`https://api.themoviedb.org/3/${endpoint}/${tmdbID}/images?api_key=${TMDB_API_KEY}&include_image_language=en,es,null`);
         const data = await res.json();
-        return data.results.map(r => r.media_formats?.gif?.url).filter(Boolean);
+        const urls = (data.backdrops || [])
+          .slice(0, 10)
+          .map(b => `https://image.tmdb.org/t/p/w1280${b.file_path}`);
+        bannersCache[tmdbID] = urls;
+        return urls;
       } catch { return []; }
     }
 
-    async function buscarGIF(nombre) {
-      const gifs = await buscarGIFsTenor(nombre, 1);
-      return gifs[0] || '';
-    }
+    async function cambiarBanner(pelicula) {
+      if (!pelicula?.tmdbID) { mostrarNotificacion('Este título no tiene ID de TMDB para buscar banners', false); return; }
+      const banners = await buscarBackdropsTMDB(pelicula.tmdbID, pelicula.type);
+      if (!banners.length) { mostrarNotificacion('No se encontraron más banners para este título', false); return; }
 
-    async function cambiarGIF(pelicula) {
-      if (!pelicula?.name) return;
-      const gifs = await buscarGIFsTenor(pelicula.name, 5);
-      if (!gifs.length) return;
-      gifIndiceActual = (gifIndiceActual + 1) % gifs.length;
-      pelicula.gif = gifs[gifIndiceActual];
+      const actualIdx = banners.indexOf(pelicula.backdrop);
+      const siguiente = banners[(actualIdx + 1) % banners.length];
+      pelicula.backdrop = siguiente;
+
       const heroBg = document.querySelector('.hero-bg');
-      if (heroBg) heroBg.src = pelicula.gif;
+      if (heroBg) heroBg.src = siguiente;
+
       try {
         const actual = await dbLeer();
         const idx    = actual.findIndex(p => p.id === pelicula.id);
@@ -2551,34 +2582,45 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
       } catch { /* silencioso */ }
     }
 
-    // ── TRADUCIR ─────────────────────────────────────────
-    async function traducirTexto(texto) {
-      if (!texto || texto.trim() === '') return texto;
-      try {
-        const url  = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t&q=${encodeURIComponent(texto)}`;
-        const res  = await fetch(url);
-        const data = await res.json();
-        return data[0].map(seg => seg[0]).join('');
-      } catch { return texto; }
+    // ── TRADUCCIÓN (widget nativo de Google Translate) ───
+    // Los títulos tienen translate="no" en su markup, así que Google los deja
+    // intactos aunque se traduzca el resto de la página (descripciones, géneros, etc).
+    let googleTranslateListo = false;
+    let googleTranslateCargando = false;
+
+    window.googleTranslateElementInit = function () {
+      new google.translate.TranslateElement({
+        pageLanguage: 'es',
+        includedLanguages: 'es,en,pt,fr,it,de',
+        autoDisplay: false
+      }, 'google_translate_element');
+      googleTranslateListo = true;
+    };
+
+    function cargarGoogleTranslate() {
+      if (googleTranslateListo || googleTranslateCargando) return;
+      googleTranslateCargando = true;
+      const script = document.createElement('script');
+      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.body.appendChild(script);
     }
 
-    async function traducirDetalle() {
-      const btn = document.getElementById('btn-traducir');
-      if (!btn) return;
-      btn.disabled = true;
-      btn.textContent = '⏳ Traduciendo...';
-
-      const desc = document.querySelector('.detalle-desc');
-      if (desc) desc.textContent = await traducirTexto(desc.textContent);
-
-      const metaSpans = document.querySelectorAll('.meta-item span');
-      for (const span of metaSpans) span.textContent = await traducirTexto(span.textContent);
-
-      const badges = document.querySelectorAll('.badge:not(.gold)');
-      for (const badge of badges) badge.textContent = await traducirTexto(badge.textContent);
-
-      btn.textContent = '✔ Traducido';
+    function aplicarTraduccion(intentos = 0) {
+      const combo = document.querySelector('.goog-te-combo');
+      if (!combo) {
+        if (intentos < 20) { setTimeout(() => aplicarTraduccion(intentos + 1), 250); }
+        else { mostrarNotificacion('No se pudo cargar el traductor de Google', false); }
+        return;
+      }
+      combo.value = 'es';
+      combo.dispatchEvent(new Event('change'));
     }
+
+    function traducirPagina() {
+      cargarGoogleTranslate();
+      aplicarTraduccion();
+    }
+
 
     // ── BUSCADOR HEADER ──────────────────────────────────
     const searchInput = document.getElementById('search-input');
@@ -2683,12 +2725,14 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
 
         if (tipoEntrada === 'movie') {
           const omdb = entradaSeleccionada || await buscarOMDbPorTitulo(titulo);
-          const gif  = await buscarGIF(omdb.Title);
           let tmdbIDPelicula = '';
+          let backdrop = '';
           try {
             const tr = await fetch(`https://api.themoviedb.org/3/find/${omdb.imdbID}?api_key=${TMDB_API_KEY}&external_source=imdb_id`);
             const td = await tr.json();
-            tmdbIDPelicula = td.movie_results?.[0]?.id ? String(td.movie_results[0].id) : '';
+            const match = td.movie_results?.[0];
+            tmdbIDPelicula = match?.id ? String(match.id) : '';
+            backdrop = match?.backdrop_path ? `https://image.tmdb.org/t/p/w1280${match.backdrop_path}` : '';
           } catch { /* silencioso */ }
           data = {
             id:          generarID(),
@@ -2705,7 +2749,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
             country:     omdb.Country,
             actors:      omdb.Actors,
             awards:      omdb.Awards,
-            gif,
+            backdrop,
             imdbID:      omdb.imdbID,
             tmdbID:      tmdbIDPelicula
           };
@@ -2718,7 +2762,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
           }
           const imdbID  = tmdb.external_ids?.imdb_id || '';
           const poster  = tmdb.poster_path ? `https://image.tmdb.org/t/p/w500${tmdb.poster_path}` : '';
-          const gif     = await buscarGIF(tmdb.name);
+          const backdrop = tmdb.backdrop_path ? `https://image.tmdb.org/t/p/w1280${tmdb.backdrop_path}` : '';
           const seasons = (tmdb.seasons || [])
             .filter(s => s.season_number > 0)
             .map(s => ({ season_number: s.season_number, episode_count: s.episode_count }));
@@ -2736,7 +2780,7 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
             seasons,
             tmdbID:       tmdb.id,
             imdbID,
-            gif
+            backdrop
           };
         }
 

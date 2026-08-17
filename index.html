@@ -1393,12 +1393,6 @@
     .btn-ai-send:hover { background: var(--gold-soft); transform: scale(1.06); }
     .btn-ai-send:disabled { opacity: 0.5; cursor: default; transform: none; }
 
-    /* ═══════════════════════════ GOOGLE TRANSLATE (oculto, solo funcional) ═══════════════════════════ */
-    .goog-te-banner-frame, .skiptranslate { display: none !important; }
-    body { top: 0 !important; }
-    .goog-tooltip, .goog-tooltip:hover { display: none !important; }
-    .goog-text-highlight { background: none !important; box-shadow: none !important; }
-
     /* ═══════════════════════════ FOOTER ═══════════════════════════ */
     footer {
       text-align: center;
@@ -1469,8 +1463,6 @@
   </header>
 
   <div id="toast"></div>
-
-  <div id="google_translate_element" style="display:none;"></div>
 
   <!-- ═══ MODAL: ¿Qué miro hoy? ═══ -->
   <div class="modal-overlay" id="modal-random">
@@ -2402,7 +2394,6 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
               ${esSerie ? `<button class="btn-secondary" id="btn-marcar-ep"
                 data-serie-id="${p.id}" data-season="" data-episode="" data-name=""
                 onclick="marcarEpisodioVisto(this)">📌 Marcar episodio como visto</button>` : ''}
-              <button class="btn-secondary" onclick="traducirPagina()">🌐 Traducir</button>
               <button class="btn-secondary" onclick="cambiarBanner(peliculasData[${index}])">🔄 Cambiar banner</button>
               <button class="btn-danger" onclick="eliminarPelicula('${p.id}')">🗑 Eliminar</button>
             </div>
@@ -2582,45 +2573,10 @@ Usá "tipo":"tv" para series. Incluí el año de estreno si lo sabés (o dejalo 
       } catch { /* silencioso */ }
     }
 
-    // ── TRADUCCIÓN (widget nativo de Google Translate) ───
-    // Los títulos tienen translate="no" en su markup, así que Google los deja
-    // intactos aunque se traduzca el resto de la página (descripciones, géneros, etc).
-    let googleTranslateListo = false;
-    let googleTranslateCargando = false;
-
-    window.googleTranslateElementInit = function () {
-      new google.translate.TranslateElement({
-        pageLanguage: 'es',
-        includedLanguages: 'es,en,pt,fr,it,de',
-        autoDisplay: false
-      }, 'google_translate_element');
-      googleTranslateListo = true;
-    };
-
-    function cargarGoogleTranslate() {
-      if (googleTranslateListo || googleTranslateCargando) return;
-      googleTranslateCargando = true;
-      const script = document.createElement('script');
-      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      document.body.appendChild(script);
-    }
-
-    function aplicarTraduccion(intentos = 0) {
-      const combo = document.querySelector('.goog-te-combo');
-      if (!combo) {
-        if (intentos < 20) { setTimeout(() => aplicarTraduccion(intentos + 1), 250); }
-        else { mostrarNotificacion('No se pudo cargar el traductor de Google', false); }
-        return;
-      }
-      combo.value = 'es';
-      combo.dispatchEvent(new Event('change'));
-    }
-
-    function traducirPagina() {
-      cargarGoogleTranslate();
-      aplicarTraduccion();
-    }
-
+    // Nota sobre traducción: no hay botón ni lógica propia — se usa la
+    // traducción nativa del navegador (Chrome/Edge la ofrecen solas al
+    // detectar <html lang="es">). Los títulos llevan translate="no" para
+    // que el traductor del navegador los deje intactos.
 
     // ── BUSCADOR HEADER ──────────────────────────────────
     const searchInput = document.getElementById('search-input');
